@@ -2,3 +2,4 @@
 
 * [AI Azure Voice Agent](https://github.com/microsoft/voice-agent) 
   * [Demo](https://www.youtube.com/watch?v=u8usaIQMR5s) & [Introducing voice agents in Microsoft Foundry](https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/introducing-voice-agents-in-microsoft-foundry/4557276)
+  * [Voice Live API for real-time voice agents](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/voice-live)
