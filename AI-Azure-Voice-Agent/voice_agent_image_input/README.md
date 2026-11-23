@@ -1,15 +1,10 @@
----
-ai-usage: ai-assisted
----
-
 # Voice Agent with image and camera input
 
-Talk to a Foundry Voice Agent about what it can see. The user can type, speak,
-upload up to five images, or share sampled camera frames, and the agent answers
-by voice. Images are sent directly into the realtime voice session as
-`input_image` content parts; no separate vision service is involved.
+* Talk to a Foundry Voice Agent about what it can see. 
+* The user can type, speak, upload up to five images, or share sampled camera frames, and the agent answers by voice.
+* Images are sent directly into the realtime voice session as `input_image` content parts; no separate vision service is involved.
 
-The sample has two entry points that share one small helper module:
+* The sample has two entry points that share one small helper module:
 
 | File | Purpose |
 | --- | --- |
@@ -35,31 +30,15 @@ sequenceDiagram
 
 ## Prerequisites
 
-- Python 3.11 or later, Azure CLI (`az login`), and a current Edge or Chrome.
 - A Foundry Project with Voice Agents, and permission to create and use agents.
-- A Voice Agent model that accepts image input. The public
-  [Azure OpenAI realtime audio guide](https://learn.microsoft.com/azure/ai-foundry/openai/how-to/realtime-audio#image-input)
-  documents image input for GPT realtime models. Model availability depends on
-  your project and region; a voice-capable model is not necessarily
-  image-capable. Check your project's model catalog and test with your own data.
-- A small, non-sensitive test image. Do not use personal or customer data.
+- A Voice Agent model that accepts image input.
+- The public [Azure OpenAI realtime audio guide](https://learn.microsoft.com/azure/ai-foundry/openai/how-to/realtime-audio#image-input) documents image input for GPT realtime models.
 
 ## Set up
 
-From the repository root, in PowerShell:
-
 ```powershell
-Set-Location samples\voice_agent_image_input
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-Copy-Item .env.example .env
-az login
-```
+pip install -r requirements.txt
 
-On Linux or macOS, use `python3 -m venv .venv`, `.venv/bin/python`, and
-`cp .env.example .env`. Then edit `.env`:
-
-```dotenv
 AZURE_VOICE_AGENTS_ENDPOINT=https://<account>.services.ai.azure.com/api/projects/<project>
 AZURE_VOICE_AGENTS_MODEL=gpt-realtime
 AZURE_VOICE_AGENTS_VOICE=en-US-AvaNeural
@@ -69,28 +48,22 @@ AZURE_VOICE_AGENTS_AGENT_PREFIX=voice-image-input
 AZURE_CREDENTIAL_MODE=cli
 ```
 
-Without `AZURE_VOICE_AGENTS_AGENT_NAME`, the first run creates and enables a
-uniquely named agent (`<prefix>-<8 hex>`) with `store: false`, Azure Speech
-input transcription, and Azure semantic VAD. **The agent is retained**; reuse
-its printed name, and delete it in Foundry when finished.
+* Without `AZURE_VOICE_AGENTS_AGENT_NAME`, the first run creates and enables a uniquely named agent (`<prefix>-<8 hex>`) with `store: false`, Azure Speech input transcription, and Azure semantic VAD.
+* **The agent is retained**; reuse its printed name, and delete it in Foundry when finished.
 
 ## Run the web UI
 
-```powershell
-.\.venv\Scripts\python.exe server.py
-```
+``` python.exe server.py ```
 
 Open **http://127.0.0.1:8780** and select **Connect**. Use a headset.
 
 - **Talk** — speak naturally; talk over a reply to interrupt it.
 - **Type** — enter a question and select **Send**.
 - **Upload** — select **Add images** (1–5 JPEG, PNG, or WebP files, 8 MiB each),
-  optionally type a question, then **Send**. An empty question becomes
-  `Describe this image briefly.`
-- **Camera** — select **Start camera**. One JPEG frame (max 1280×720) is
-  captured every 2 seconds and added to the conversation **without** requesting
-  a reply. Ask by voice or text, for example "What is in front of me?".
-  **Retain frames** (1–5, default 3) bounds how many frames stay in context.
+  optionally type a question, then **Send**. An empty question becomes   `Describe this image briefly.`
+- **Camera** — select **Start camera**. One JPEG frame (max 1280×720) is captured every 2 seconds and added to the conversation **without** requesting a reply.
+    - Ask by voice or text, for example "What is in front of me?".
+    - **Retain frames** (1–5, default 3) bounds how many frames stay in context.
 
 The UI shows the time from sending a turn (or from the end of speech) to the
 first audio chunk, and to `response.done`.
@@ -99,25 +72,21 @@ first audio chunk, and to `response.done`.
 
 ```powershell
 # One image, spoken reply saved as WAV.
-.\.venv\Scripts\python.exe voice_image_agent.py --image .\photo.jpg --text "What is on the table?" --save-audio reply.wav
+pythoe voice_image_agent.py --image .\photo.jpg --text "What is on the table?" --save-audio reply.wav
 
 # Several frames in one turn, repeated three times to observe latency.
-.\.venv\Scripts\python.exe voice_image_agent.py --image f1.jpg --image f2.jpg --image f3.jpg `
-  --text "These frames are in time order. What changed?" --repeat 3 --json-out result.json
+python voice_image_agent.py --image f1.jpg --image f2.jpg --image f3.jpg --text "These frames are in time order. What changed?" --repeat 3 --json-out result.json
 
 # Print the event shape (image data redacted) and reuse an existing agent.
-.\.venv\Scripts\python.exe voice_image_agent.py --agent-name <agent-name> --image photo.jpg --show-event
+python voice_image_agent.py --agent-name <agent-name> --image photo.jpg --show-event
 ```
 
-Each run prints timings in milliseconds measured from sending
-`conversation.item.create`: `item_created_ms`, `first_text_ms`,
-`first_audio_ms`, and `response_done_ms`. `--json-out` also stores the
+* Each run prints timings in milliseconds measured from sending `conversation.item.create`: `item_created_ms`, `first_text_ms`, `first_audio_ms`, and `response_done_ms`. `--json-out` also stores the
 service-reported token usage.
 
 ## How images are sent
 
-Once the session reports `session.updated`, send one user message containing
-ordered text and image parts, then one `response.create`:
+* Once the session reports `session.updated`, send one user message containing ordered text and image parts, then one `response.create`:
 
 ```json
 {
@@ -263,3 +232,5 @@ They cover event shapes, data-URL validation, the camera sliding window,
 response gating, the CLI turn loop, browser-to-service relay validation, and
 loopback/origin checks. A live run against your project is still required to
 confirm model support and latency.
+
+<img width="1838" height="741" alt="image" src="https://github.com/user-attachments/assets/c570dc34-66d1-4622-bd78-4ed17d1d6ecc" />
