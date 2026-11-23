@@ -1,0 +1,4 @@
+azure-ai-projects[voice]
+azure-identity
+python-dotenv
+aiohttp
